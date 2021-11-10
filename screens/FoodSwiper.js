@@ -10,7 +10,7 @@ export default function FoodSwiper() {
             </Text>
         </View>
         <View style={styles.info}>
-            <Text>hej</Text>
+            <Text>hej test</Text>
         </View>
     </View>
 }
