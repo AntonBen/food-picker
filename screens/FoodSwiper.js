@@ -1,35 +1,59 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, {useState} from 'react';
+import { Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { PanGestureHandler } from 'react-native-gesture-handler';
+import Animated, { event, useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 export default function FoodSwiper() {
-  return  <View style={styles.container}>
-      <View style={styles.picture}></View>
-        <View style={styles.foodInfo}>
+
+  const translationX = useSharedValue(0);
+  const translationY = useSharedValue(0);
+  const onGestureEvent = useAnimatedGestureHandler({
+    onActive: (event) => {
+      translationX.value = event.translationX;
+      translationY.value = event.translationY;
+    },
+    onEnd: (event) => {
+      translationX.value = withSpring(0);
+      translationY.value = withSpring(0);
+    }
+  });
+
+  const animationStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateX: translationX.value },
+        { translateY: translationY.value },
+      ]
+    }
+  })
+
+  return (
+  <View style={styles.container}>
+    <PanGestureHandler onGestureEvent={onGestureEvent}>
+        <Animated.View style={animationStyle}>
+          <View style={styles.pictureCard}>
             <Text>
-              Babas
+              picture
             </Text>
-        </View>
-        <View style={styles.info}>
-            <Text>hej test</Text>
-        </View>
+          </View>
+        </Animated.View>
+      </PanGestureHandler>
     </View>
+  )
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
     display: 'flex',
+    height: '100%',
   },
-  picture:{
-    flex: 2,
-  },
-  foodInfo: {
+  pictureCard: {
     backgroundColor: '#ff00ff',
-    padding: 10,
-    width: '100%',
+    width: 200,
+    height: 300,
   },
   info: {
     backgroundColor: '#ffff00',
