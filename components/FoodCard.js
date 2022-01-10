@@ -1,23 +1,41 @@
 import React from 'react';
 import { View, StyleSheet, Text, Image } from 'react-native';
-import Animated from 'react-native-reanimated';
+import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
-export const FoodCard = ({placeData}) => {
+export const FoodCard = ({placeData, opacity}) => {
 
-  if(placeData == undefined){
-    return null
-  }
+  const like = useAnimatedStyle(() => {
+    return {
+      opacity: opacity.value
+    }
+  })
+
+  const dislike = useAnimatedStyle(() => {
+    const disLikeOpacity = opacity.value < 0 ?Math.abs(opacity.value) : 0;
+    return {
+      opacity: disLikeOpacity
+    }
+  })
+
    
   return (
     <View style={style.container}>
-      <Text>{placeData.name}</Text>
       <Image source={{uri: placeData.image_url}} style={style.image} />
       <View style={style.overlay}>
         <View style={style.indicators}>
-          <Animated.Text style={style.disLike}>No Thanks</Animated.Text>
-          <Animated.Text style={style.like}>Yummy</Animated.Text>
+          <Animated.Text style={[style.disLike, dislike]}>Nasty</Animated.Text>
+          <Animated.Text style={[style.like, like]}>Tasty</Animated.Text>
         </View>
-
+        <View style={style.info}>
+          <View>
+            <Text style={style.infoText}>{placeData.name}</Text>
+            <Text >{placeData.price}</Text>
+          </View>
+          <View>
+            <Text style={style.infoText}>{placeData.rating}</Text>
+            <Text>{Math.round(placeData.distance) + " m"}</Text>
+          </View>
+        </View>
       </View>
     </View>
   )
@@ -26,8 +44,8 @@ export const FoodCard = ({placeData}) => {
 const style = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'grey',
     flex: 1,
+    borderRadius: 20,
   },
   image: {
     ...StyleSheet.absoluteFillObject,
@@ -37,12 +55,12 @@ const style = StyleSheet.create({
   },
   overlay: {
     flex: 1,
+    justifyContent: 'space-between',
   },
   indicators: {
     flexDirection: 'row',
     justifyContent: "space-between",
     padding: 10,
-    
   },
   like: {
     fontSize: 24,
@@ -59,5 +77,17 @@ const style = StyleSheet.create({
     borderWidth: 4,
     paddingHorizontal: 10,
     fontWeight: 'bold',
+  },
+  info: {
+    borderTopEndRadius: 20,
+    backgroundColor: 'white',
+    padding: 20,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  infoText: {
+    fontSize: 32,
+
   }
 })

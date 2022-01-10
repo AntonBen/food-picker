@@ -22,7 +22,8 @@ export const getResturants = () => {
     name: "Flippin' Burgers",
     price: "$$",
     rating: 4,
-  }])
+  },
+])
  })
 
   return dataPromise

@@ -1,19 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, TouchableOpacity, View, SafeAreaView } from 'react-native';
+import { Pressable, StyleSheet, Text, TouchableOpacity, View, SafeAreaView, Dimensions } from 'react-native';
 import { PanGestureHandler } from 'react-native-gesture-handler';
-import Animated, { event, runOnJS, useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, event, Extrapolate, interpolate, runOnJS, useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 import { FoodCard } from '../components/FoodCard';
 import { getResturants } from '../services/yelp';
 
 export default function FoodSwiper() {
 
+  const HEIGHT = Dimensions.get('window').height;
+  const WIDTH = Dimensions.get('window').width;
+
   const [foodPlaces, setFoodPlaces] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [activeCard, setActiveCard] = useState({ distance: 1081.6788379841437,
-  image_url: "https://s3-media2.fl.yelpcdn.com/bphoto/UOSD_cdeKPtKhUerL3eu3w/o.jpg",
-  name: "Blå Dörren",
-  price: "$$",
-  rating: 4,})
+  const [likedPlaces, setLikedPlaces] = useState([])
+
+  const translationX = useSharedValue(0);
+  const translationY = useSharedValue(0);
+  const rotateZ = useSharedValue(0);
+  const opacity = useSharedValue(0);
 
   useEffect( () => {
     getResturants()
@@ -22,12 +26,11 @@ export default function FoodSwiper() {
   },[])
 
   const newCard = () => {
+    opacity.value = 0;
     setActiveIndex(activeIndex + 1);
-    console.log("new card")
+    console.log("new card");
   };
 
-  const translationX = useSharedValue(0);
-  const translationY = useSharedValue(0);
   const onGestureEvent = useAnimatedGestureHandler({
     onStart: (event) => {
       translationX.value = 0;
@@ -35,17 +38,22 @@ export default function FoodSwiper() {
     },
     onActive: (event) => {
       translationX.value = event.translationX;
-      translationY.value = event.translationY;
+      translationY.value = interpolate(event.translationX, [-WIDTH / 2, 0, WIDTH / 2], [20, 0, 20]);
+      rotateZ.value = interpolate(event.translationX, [-WIDTH / 2, 0, WIDTH / 2], [-10, 0, 10]);
+      opacity.value = interpolate(event.translationX, [-WIDTH / 6, 0, WIDTH / 6], [-1, 0, 1], Extrapolate.CLAMP);
     },
     onEnd: (event) => {
-      if(event.velocityX > 10 && event.translationX > 0 ) {
-        translationX.value = 500
-        runOnJS(newCard)();
+      if(event.velocityX > 10 && event.translationX > 50 ) {
+        return translationX.value = withTiming(WIDTH + 60, {}, (test => runOnJS(newCard)()));
+        
       }
-      if(event.velocityX < -10 && event.translationX < -0 ) {
-        translationX.value = -500
-        return runOnJS(newCard)()
+      if(event.velocityX < -10 && event.translationX < -50 ) {
+        return translationX.value = withTiming(-WIDTH - 60, {easing: Easing.bezier(0.25, 0.1, 0.25, 1)}, (test => runOnJS(newCard)()));
       }
+      translationX.value = withSpring(0);
+      translationY.value = withSpring(0);
+      rotateZ.value = withSpring(0);
+      opacity.value = 0;
     }
   });
 
@@ -53,12 +61,14 @@ export default function FoodSwiper() {
     return {
       transform: [
         { translateX: translationX.value },
-        { translateY: translationX.value }
+        { translateY: translationY.value },
+        { rotateZ: `${rotateZ.value}deg`}
       ]
     }
   })
 
-  return (<SafeAreaView>
+  return (<SafeAreaView style={{display: 'flex', backgroundColor: "white"}}>
+    <View style={{height: 20}} />
     <PanGestureHandler  onGestureEvent={onGestureEvent}>
     <Animated.View style={styles.container}>
         {foodPlaces.map((foodPlace, index) =>  {
@@ -68,35 +78,74 @@ export default function FoodSwiper() {
           }
           if(index === activeIndex) {
             return<Animated.View key={foodPlace.name} style={[animationStyle, styles.card] }>
-            <FoodCard key={foodPlace.name} placeData={foodPlace} />
+            <FoodCard key={foodPlace.name} placeData={foodPlace} opacity={opacity} />
           </Animated.View>
           }
           return<Animated.View key={foodPlace.name + "testr"} style={ styles.card }>
-          <FoodCard key={foodPlace.name + "test"} placeData={foodPlace} />
+          <FoodCard key={foodPlace.name + "test"} placeData={foodPlace} opacity={{value: 0}} />
         </Animated.View>
         }).reverse()}
     </Animated.View>
     </PanGestureHandler>
+    <View style={styles.footer} >
+      <View style={[styles.button, styles.redButton ]}>
+        <Text style={styles.redButton}>Nasty</Text>
+      </View>
+      <View style={[styles.button, styles.greenButton]}>
+        <Text style={styles.greenButton}>Tasty</Text>
+      </View>
+    </View>
   </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff',
     alignItems: 'center',
     display: 'flex',
-    height: '100%',
+    height: '85%',
     width: '100%',
-    backgroundColor: "#333333",
     position: 'relative',
   },
   info: {
-    backgroundColor: '#ffff00',
+
     flex: 1,
     width: '100%'
   },
   card: {
     ...StyleSheet.absoluteFillObject,
+  },
+  footer: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignContent: 'space-around',
+    paddingTop: 20,
+    backgroundColor: '#f1f1f1'
+  },
+  button: {
+    height: 80,
+    width: 80,
+    borderRadius: 2,
+    borderWidth: 3,
+    display: 'flex',
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 40,
+    opacity: 0.7,
+  },
+  greenButton: {
+    borderColor: "green",
+    color: 'green',
+    fontWeight: 'bold',
+    fontSize:20,
+  },
+  redButton: {
+    borderColor: 'red',
+    color: 'red',
+    fontWeight: 'bold',
+    fontSize:20,
   }
 });
