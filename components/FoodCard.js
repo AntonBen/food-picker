@@ -23,8 +23,8 @@ export const FoodCard = ({placeData, opacity}) => {
       <Image source={{uri: placeData.image_url}} style={style.image} />
       <View style={style.overlay}>
         <View style={style.indicators}>
+        <Animated.Text style={[style.like, like]}>Tasty</Animated.Text>
           <Animated.Text style={[style.disLike, dislike]}>Nasty</Animated.Text>
-          <Animated.Text style={[style.like, like]}>Tasty</Animated.Text>
         </View>
         <View style={style.info}>
           <View>
@@ -60,7 +60,8 @@ const style = StyleSheet.create({
   indicators: {
     flexDirection: 'row',
     justifyContent: "space-between",
-    padding: 10,
+    paddingHorizontal: 50,
+    paddingTop: 20,
   },
   like: {
     fontSize: 24,
