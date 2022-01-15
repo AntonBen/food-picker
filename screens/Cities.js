@@ -1,31 +1,32 @@
 import React, { useEffect, useState } from 'react'
 import { View, StyleSheet, TouchableOpacity, Text, FlatList } from 'react-native'
+import { getCities } from '../services/yelp'
 
 const Cities = ({navigation}) => {
 
-  const [cities, setCities] = useState([{key:'stan'}, {key:'gården'}])
+  const [cities, setCities] = useState(['stan','gården'])
 
   useEffect(() => {
-    
-    setCities([{key:'stan'}, {key:'gården'}])
+    getCities()
+    .then(response => setCities(response))
+    .catch(err => console.error(err))
   }, [])
-  console.log(cities)
+
   return (
     <View style={styles.container}>
       <FlatList 
         data={cities}
-        keyExtractor={(item) => item.key}
+        keyExtractor={(item) => item}
         renderItem={(({item}) =>
-        <TouchableOpacity onPress={() => navigation.navigate('food',item.key)}>
-<View>
-            <Text>
-        {item.key}
-        </Text>
-          </View>
-        </TouchableOpacity>
-        
-        )
-        } />
+          <TouchableOpacity onPress={() => navigation.navigate('food',item)}>
+            <View>
+              <Text>
+                {item}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        )} 
+      />
     </View>
   )
 }

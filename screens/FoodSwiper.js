@@ -22,7 +22,7 @@ export default function FoodSwiper( {route, navigation}) {
   const opacity = useSharedValue(0);
 
   useEffect( () => {
-    getResturants()
+    getResturants(route.params)
       .then(response => setFoodPlaces(response))
       .catch(err => console.log(err))
   },[])
@@ -111,7 +111,6 @@ export default function FoodSwiper( {route, navigation}) {
           <Text style={styles.greenButton}>Tasty</Text>
         </View>
       </TouchableOpacity>
-
     </View>
   </SafeAreaView>
   )

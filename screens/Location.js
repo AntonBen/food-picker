@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Image, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 
 const LocationScreen = ({navigation}) => {
   

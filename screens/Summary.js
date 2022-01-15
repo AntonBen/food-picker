@@ -1,12 +1,23 @@
 import React from 'react'
-import { Text, View } from 'react-native'
+import { FlatList, Text, TouchableOpacity, View } from 'react-native'
 
 
-const Summary = () => {
+const Summary = ({route, navigation}) => {
+  const likedPlaces = route.params;
 
   return (
     <View>
-      <Text>hello</Text>
+      <FlatList 
+        data={likedPlaces}
+        keyExtractor={(item) => item.name}
+        renderItem={(({item}) =>
+          <TouchableOpacity>
+            <View>
+              <Text>{item.name}</Text>
+            </View> 
+          </TouchableOpacity>
+        )}
+      />
     </View>
   )
 }

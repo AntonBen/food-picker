@@ -12,11 +12,12 @@ const Stack = createStackNavigator()
 
 const Navigator = () => {
   return <Stack.Navigator>
+     <Stack.Screen name='summary' component={Summary} />
     <Stack.Screen name='intro' component={Intro} />
     <Stack.Screen name='location' component={LocationScreen} />
     <Stack.Screen name='cities' component={Cities} />
     <Stack.Screen name='food' component={FoodSwiper} />
-    <Stack.Screen name='summary' component={Summary} />
+    
   </Stack.Navigator>
 }
 

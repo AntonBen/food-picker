@@ -1,5 +1,5 @@
 
-export const getResturants = () => {
+const getResturants = (location) => {
  const dataPromise = new Promise((res,rej) => {
    res([
     {
@@ -28,7 +28,15 @@ export const getResturants = () => {
 
   return dataPromise
 
-    return fetch('https://europe-west1-restaurants-tinder.cloudfunctions.net/food-api/restaurants?location=stockholm')
-    .then(response => response.json)
-    .catch(err => console.log(err))
+    return fetch(`https://europe-west1-restaurants-tinder.cloudfunctions.net/food-api/restaurants?location=${location}`)
+    .then(response => response.json())
+    .catch(err => console.error(err))
 }
+
+const getCities = () => {
+  return fetch('https://europe-west1-restaurants-tinder.cloudfunctions.net/food-api/restaurants/suggestions')
+  .then(response => response.json())
+  .catch(err => console.error(err))
+}
+
+export { getResturants, getCities }
